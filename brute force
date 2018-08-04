@@ -1,0 +1,57 @@
+class Food(object):
+    def __init__(self, n, v, w):
+        self.name = n
+        self.value = v
+        self.calories = w
+
+    def get_Value(self):
+        return self.value
+
+    def get_Cost(self):
+        return self.calories
+
+    def odnos(self):
+        return self.get_Value() / self.get_Cost()
+
+    def __str__(self):
+        return self.name + ": <" + str(self.value) + ", " + str(self.calories) + ">"
+
+
+def build_menu(names, values, calories):
+    menu = []
+    for i in range(len(values)):
+        menu.append(Food(names[i], values[i], calories[i]))
+    return menu
+
+def max_val(toCon, avail):
+
+    if toCon == [] or avail == 0:
+        result = (0, ())
+    elif toCon[0].get_Cost() > avail:
+        result = max_val(toCon[1:], avail)
+    else:
+        nextItem = toCon[0]
+        withVal, withToTake = max_val(toCon[1:], avail - nextItem.get_Cost())
+        withVal += nextItem.get_Value()
+        without, withNotTake = max_val(toCon[1:],avail)
+
+        if withVal > without:
+            result = (withVal, withToTake + (nextItem, ))
+        else:
+            result = (without, withNotTake)
+    return result
+
+def test_max_val(foods, maxUnits, printItems = True):
+    print("Search tree", maxUnits, "calories")
+    val, taken = max_val(foods, maxUnits)
+    print("Total value of items taken = ", val)
+    if printItems:
+        for item in taken:
+            print(" -", item)
+
+names = ["wine", "beer", "pizza", "burger", "fries", "cola", "apple", "donut", "cake"]
+values = [89, 90, 95, 100, 90, 79, 50, 10]
+calories = [123, 154, 258, 354, 365, 150, 95, 195]
+foods = build_menu(names, values, calories)
+
+test_max_val(foods, 750)
