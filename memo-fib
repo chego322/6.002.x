@@ -1,0 +1,11 @@
+poznato = {0 : 0, 1 : 1}
+
+def fib(x):
+    if x in poznato:
+        return poznato[x]
+    resenje = fib(x - 1) + fib(x - 2)
+    poznato[x] = resenje
+    return resenje
+
+for i in range(121):
+    print("fib" + str(i) + " :", fib(i))
