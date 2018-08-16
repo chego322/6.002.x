@@ -1,0 +1,69 @@
+import sys
+sys.setrecursionlimit(2000)
+class Food(object):
+    def __init__(self, n, v, w):
+        self.name = n
+        self.value = v
+        self.calories = w
+
+    def get_Value(self):
+        return self.value
+
+    def get_Cost(self):
+        return self.calories
+
+    def odnos(self):
+        return self.get_Value() / self.get_Cost()
+
+    def __str__(self):
+        return self.name + ": <" + str(self.value) + ", " + str(self.calories) + ">"
+
+
+def build_menu(names, values, calories):
+    menu = []
+    for i in range(len(values)):
+        menu.append(Food(names[i], values[i], calories[i]))
+    return menu
+
+
+import random
+def buildLargeMenu(numItems, maxVal, maxCost):
+    items = []
+    for i in range(numItems):
+        items.append(Food(str(i), random.randint(1, maxVal), random.randint(1, maxCost)))
+    return items
+
+def brzi_maxVal(toCon, avail, memo = {}):
+    if (len(toCon), avail) in memo:
+        result = memo[(len(toCon), avail)]
+    elif toCon ==  [] or avail == 0:
+        result = (0, ())
+    elif toCon[0].get_Cost() > avail:
+        return brzi_maxVal(toCon[1:], avail, memo)
+    else:
+        next_item = toCon[0]
+        withVal, withTaken = brzi_maxVal(toCon[1:], avail - next_item.get_Cost(), memo)
+        withVal += next_item.get_Value()
+        without, withno = brzi_maxVal(toCon[1:], avail, memo)
+        if withVal > without:
+            result = (withVal, withTaken + (next_item,))
+        else:
+            result = (without, withno)
+
+    memo[(len(toCon), avail)] = result
+    return result
+
+def test_brzi(foods, maxUnits, algorithm, printItems = True):
+    print("menu contains ", len(foods), " items")
+    print("use search tree to allocate", maxUnits, " calories")
+
+    val, taken = algorithm(foods, maxUnits)
+    if printItems:
+        print("Total value of items takn = ", val)
+        for item in taken:
+            print(" ", item)
+
+
+for nums in (5, 10 ,15, 20, 25 , 30, 35 ,40, 45, 50, 1024):
+    items = buildLargeMenu(nums, 90, 250)
+    test_brzi(items, 750, brzi_maxVal, False)
